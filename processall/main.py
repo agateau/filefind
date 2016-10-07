@@ -121,10 +121,10 @@ def process(config):
 
         for processor in config.processors:
             cmd = processor.replace('@filelist', file_list)
-            print('Running {}'.format(cmd))
+            logging.info('Running `{}`'.format(cmd))
             returncode = run(cmd, cwd=config.source_dir, shell=True)
             if returncode != 0:
-                print('Failed with error code {}'.format(cmd, returncode))
+                logging.error('Command `{}` failed with error code {}'.format(cmd, returncode))
                 return 1
 
 

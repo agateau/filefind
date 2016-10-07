@@ -12,7 +12,15 @@ from submodules import list_submodules
 
 
 DESCRIPTION = """\
-Apply various processors to all files of a project.
+Apply processors to a list of files matching defined filters.
+"""
+
+EPILOG = """
+Commands:
+
+  list:      Print files which would be processed on stdout
+  process:   Process the files
+  genconfig: Print a sample config on stdout
 """
 
 
@@ -20,8 +28,8 @@ EXAMPLE_CONFIG = """
 include=['*.cpp', '*.hpp', '*.h']
 exclude=['dir1', 'foo/bar', 'moc_*.cpp']
 processors=[
-    'uncrustify --replace --no-backup -F @filelist',
-    'qpropertyformatter --replace -F @filelist',
+    'uncrustify -c path/to/uncrustify.cfg --replace --no-backup -F @filelist',
+    'qpropertyformatter --files @filelist',
 ]
 """
 
@@ -113,7 +121,24 @@ def write_file_list(fp, config):
                 print(path, file=fp)
 
 
-def process(config):
+class InvalidArgumentsError(Exception):
+    pass
+
+
+def check_config(config):
+    if config is None:
+        raise InvalidArgumentsError('You need to provide a configuration with --config')
+
+
+def command_list(config):
+    check_config(config)
+    write_file_list(sys.stdout, config)
+    return 0
+
+
+def command_process(config):
+    check_config(config)
+
     with TemporaryDirectory(prefix='processall-') as tmp_dir_name:
         file_list = os.path.join(tmp_dir_name, 'lst')
         with open(file_list, 'wt') as fp:
@@ -126,32 +151,39 @@ def process(config):
             if returncode != 0:
                 logging.error('Command `{}` failed with error code {}'.format(cmd, returncode))
                 return 1
+    return 0
+
+
+def command_genconfig(config):
+    print(EXAMPLE_CONFIG)
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
 
-    parser = argparse.ArgumentParser()
-    parser.description = DESCRIPTION
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description = DESCRIPTION,
+        epilog = EPILOG)
 
-    parser.add_argument('-c', '--config', dest='config',
-        help='Configuration file')
+    parser.add_argument('-c', '--config', help='Configuration file')
 
-    parser.add_argument('command',
-        help='can be "list" or "process"')
+    parser.add_argument('command', choices=['list', 'process', 'genconfig'],
+        help='The command to run')
 
     args = parser.parse_args()
 
-    config = Config.from_path(args.config)
-
-    if args.command == 'list':
-        write_file_list(sys.stdout, config)
-    elif args.command == 'process':
-        process(config)
+    if args.config:
+        config = Config.from_path(args.config)
     else:
-        parser.error('Unknown command "{}"'.format(args.command))
+        config = None
 
-    return 0
+    function = eval('command_' + args.command)
+    try:
+        return function(config)
+    except InvalidArgumentsError as exc:
+        print('Error: {}'.format(exc), file=sys.stderr)
+        return -1
 
 
 if __name__ == '__main__':

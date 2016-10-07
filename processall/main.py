@@ -135,6 +135,8 @@ def process(config):
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+
     parser = argparse.ArgumentParser()
     parser.description = DESCRIPTION
 

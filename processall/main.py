@@ -143,9 +143,6 @@ def main():
     parser.add_argument('-c', '--config', dest='config',
         help='Configuration file')
 
-    parser.add_argument('-o', '--output', dest='output',
-        help='Where to write output')
-
     parser.add_argument('command',
         help='can be "list" or "process"')
 
@@ -154,8 +151,7 @@ def main():
     config = Config.from_path(args.config)
 
     if args.command == 'list':
-        with open(args.output, 'wt') as fp:
-            write_file_list(fp, config)
+        write_file_list(sys.stdout, config)
     elif args.command == 'process':
         process(config)
     else:

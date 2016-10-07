@@ -89,7 +89,7 @@ def must_be_included(path, exclude, include):
     return path_match_patterns(path, include)
 
 
-def list_files(config):
+def write_file_list(fp, config):
     excluded_dirs = {os.path.join(config.source_dir, '.git')}
 
     for dirpath, dirnames, filenames in os.walk(config.source_dir):
@@ -110,13 +110,7 @@ def list_files(config):
         for filename in filenames:
             path = os.path.join(relative_root, filename)
             if must_be_included(path, config.exclude, config.include):
-                yield path
-
-
-def write_file_list(fp, config):
-    lst = list_files(config)
-    for path in sorted(lst):
-        print(path, file=fp)
+                print(path, file=fp)
 
 
 def process(config):

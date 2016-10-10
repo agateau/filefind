@@ -8,7 +8,7 @@ import sys
 from fnmatch import fnmatch
 from tempfile import TemporaryDirectory
 
-from submodules import list_submodules
+from processall.submodules import list_submodules
 
 
 DESCRIPTION = """\

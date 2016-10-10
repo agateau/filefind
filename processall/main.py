@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 from fnmatch import fnmatch
+from string import Template
 from tempfile import TemporaryDirectory
 
 from processall.submodules import list_submodules
@@ -32,6 +33,13 @@ processors=[
     'qpropertyformatter --files @filelist',
 ]
 """
+
+
+class AtTemplate(Template):
+    """Like template, but uses '@' as a delimiter to avoid clashes with
+    environment variables."""
+    delimiter = '@'
+
 
 
 class Config:
@@ -145,7 +153,8 @@ def command_process(config):
             write_file_list(fp, config)
 
         for processor in config.processors:
-            cmd = processor.replace('@filelist', file_list)
+            tmpl = AtTemplate(processor)
+            cmd = tmpl.safe_substitute(filelist=file_list)
             logging.info('Running `{}`'.format(cmd))
             returncode = run(cmd, cwd=config.source_dir, shell=True)
             if returncode != 0:

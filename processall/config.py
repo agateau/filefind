@@ -1,10 +1,12 @@
 import os
 
+import yaml
+
 
 EXAMPLE_CONFIG = """
-include=['*.cpp', '*.hpp', '*.h']
-exclude=['dir1', 'foo/bar', 'moc_*.cpp']
-processors=[
+include: ['*.cpp', '*.hpp', '*.h']
+exclude: ['dir1', 'foo/bar', 'moc_*.cpp']
+processors: [
     'uncrustify -c path/to/uncrustify.cfg --replace --no-backup -F @filelist',
     'qpropertyformatter --files @filelist',
 ]
@@ -26,9 +28,10 @@ class Config:
 
     @staticmethod
     def from_file(source_dir, config_file):
-        dct = dict()
-        src = config_file.read()
-        exec(src, dct)
+        #dct = dict()
+        #src = config_file.read()
+        #exec(src, dct)
+        dct = yaml.load(config_file)
 
         if not 'source_dir' in dct:
             dct['source_dir'] = source_dir

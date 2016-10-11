@@ -7,9 +7,9 @@ from processall.config import Config
 
 def test_load_config():
     source = """
-include = ['*.cpp']
-exclude = ['vendor/dir/*']
-processors = ['mycmd args']
+include: ['*.cpp']
+exclude: ['vendor/dir/*']
+processors: ['mycmd args']
 """
 
     with StringIO(source) as f:

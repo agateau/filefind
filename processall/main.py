@@ -32,29 +32,6 @@ class AtTemplate(Template):
     delimiter = '@'
 
 
-def run(cmd, **kwargs):
-    """Runs a command, prints its stderr and stdout on stdout as it runs.
-    Returns the command exit code.
-    """
-    kwargs.update(
-        dict(
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True
-        )
-    )
-    proc = subprocess.Popen(cmd, **kwargs)
-    while proc.returncode is None:
-        proc.poll()
-        for line in proc.stdout:
-            sys.stdout.write(line)
-            sys.stdout.flush()
-        for line in proc.stderr:
-            sys.stderr.write(line)
-            sys.stderr.flush()
-    return proc.returncode
-
-
 def path_match_patterns(path, patterns):
     for pattern in patterns:
         if fnmatch(path, pattern):
@@ -119,7 +96,7 @@ def command_process(config):
             tmpl = AtTemplate(processor)
             cmd = tmpl.safe_substitute(filelist=file_list)
             logging.info('Running `{}`'.format(cmd))
-            returncode = run(cmd, cwd=config.source_dir, shell=True)
+            returncode = subprocess.call(cmd, cwd=config.source_dir, shell=True)
             if returncode != 0:
                 logging.error('Command `{}` failed with error code {}'.format(cmd, returncode))
                 return 1

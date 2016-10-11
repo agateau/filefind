@@ -21,13 +21,17 @@ class Config:
 
     @staticmethod
     def from_path(config_path):
+        with open(config_path, 'rt') as f:
+            return Config.from_file(os.path.dirname(config_path), f)
+
+    @staticmethod
+    def from_file(source_dir, config_file):
         dct = dict()
-        with open(config_path, 'rt') as fp:
-            src = fp.read()
+        src = config_file.read()
         exec(src, dct)
 
         if not 'source_dir' in dct:
-            dct['source_dir'] = os.path.dirname(config_path)
+            dct['source_dir'] = source_dir
         dct['source_dir'] = os.path.abspath(dct['source_dir'])
 
         config = Config()

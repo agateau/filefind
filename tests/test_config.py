@@ -1,21 +1,20 @@
 import os
 
-from io import StringIO
-
-from processall.config import Config
+from processall.config import post_process_config
 
 
-def test_load_config():
-    source = """
-include: ['*.cpp']
-exclude: ['vendor/dir/*']
-processors: ['mycmd args']
-"""
+def test_post_process_config():
+    class Config:
+        pass
+    config = Config()
+    config.include = ['*.cpp *.h', '*.hpp']
+    config.exclude = None
+    config.source_dir = None
+    config.config = None
+    config.exec_ = None
 
-    with StringIO(source) as f:
-        config = Config.from_file('some/dir', f)
+    post_process_config(config)
 
-    assert config.include == ['*.cpp']
-    assert config.exclude == ['vendor/dir/*']
-    assert config.processors == ['mycmd args']
-    assert config.source_dir == os.path.abspath('some/dir')
+    assert config.include == ['*.cpp', '*.h', '*.hpp']
+    assert config.exclude == []
+    assert config.source_dir == os.path.abspath('.')

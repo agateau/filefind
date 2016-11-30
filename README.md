@@ -8,16 +8,43 @@ Apply various processors to files inside a project.
 
 To list files to process:
 
-    processall -c path/to/config.py list
+    processall --include '*.cpp' --include '*.h' --exclude 'test/*'
 
 To actually process files:
 
-    processall -c path/to/config.py process
+    processall --include '*.cpp' --include '*.h' --exclude 'test/*' --exec 'command @filelist'
 
-To generate an example config file:
+Options can be stored in a configuration file, so you could store all filters
+in a file named `processall.cfg` with the following content:
 
-    processall genconfig
+```
+include *.cpp
+include *.h
+
+# Exclude tests
+exclude test/*
+```
+
+And then list files with:
+
+    processall --config processall.cfg
+
+And process files with:
+
+    process --config processall.cfg --exec 'command @filelist'
+
+You can even define the `exec` option in the configuration file if you want.
 
 ## Installation
 
-## Requirements
+    ./setup.py install
+
+## Testing
+
+If you want to run tests, first install the development requirements with
+
+    pip install -r requirements-dev.txt
+
+Then run tests with:
+
+    pytest

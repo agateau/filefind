@@ -1,48 +1,23 @@
 import os
 
-import yaml
+
+def _flatten_patterns(pattern_list):
+    lst = [x.split() for x in pattern_list]
+    # lst is a list of lists, this call to `sum()` flattens it
+    return sum(lst, [])
 
 
-EXAMPLE_CONFIG = """
-include: ['*.cpp', '*.hpp', '*.h']
-exclude: ['dir1', 'foo/bar', 'moc_*.cpp']
-processors: [
-    'uncrustify -c path/to/uncrustify.cfg --replace --no-backup -F @filelist',
-    'qpropertyformatter --files @filelist',
-]
-"""
+def post_process_config(config):
+    if not config.source_dir:
+        if config.config:
+            config.source_dir = os.path.dirname(config.config)
+        else:
+            config.source_dir = '.'
+    config.source_dir = os.path.abspath(os.path.expanduser(config.source_dir))
 
-
-class Config:
-    __slots__ = ('include', 'exclude', 'processors', 'source_dir')
-
-    def __init__(self):
-        self.include = []
-        self.exclude = []
-        self.processors = []
-
-    @staticmethod
-    def from_path(config_path):
-        with open(config_path, 'rt') as f:
-            return Config.from_file(os.path.dirname(config_path), f)
-
-    @staticmethod
-    def from_file(source_dir, config_file):
-        #dct = dict()
-        #src = config_file.read()
-        #exec(src, dct)
-        dct = yaml.load(config_file)
-
-        if not 'source_dir' in dct:
-            dct['source_dir'] = source_dir
-        dct['source_dir'] = os.path.abspath(dct['source_dir'])
-
-        config = Config()
-        for key in Config.__slots__:
-            value = dct.get(key)
-            if value is not None:
-                setattr(config, key, value)
-        return config
-
-
-
+    if not config.include:
+        config.include = ['*']
+    if not config.exclude:
+        config.exclude = []
+    config.include = _flatten_patterns(config.include)
+    config.exclude = _flatten_patterns(config.exclude)

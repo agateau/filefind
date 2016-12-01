@@ -21,7 +21,7 @@ exclude vendor/dir/*
 
     args = ['--config', str(config_file), '--include', '*.h']
 
-    config = parse_args(parser, args)
+    config = parse_args(parser, args=args)
 
     assert config.include == ['*.cpp', '*.hpp', '*.h']
     assert config.flag is True
@@ -46,7 +46,7 @@ bar
 
     args = ['--config', str(config_file)]
 
-    config = parse_args(parser, args)
+    config = parse_args(parser, args=args)
 
     assert config.foo is True
     assert config.bar is True

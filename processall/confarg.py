@@ -42,14 +42,18 @@ def _load_config(config_path):
             yield from _parse_line(config_dir, line)
 
 
-def parse_args(parser, args=None):
-    parser.add_argument('-c', '--config', help='Configuration file')
-
+def parse_args(parser, *, config_arg=None, args=None):
     if args is None:
         args = sys.argv[1:]
+
+    if config_arg is None:
+        parser.add_argument('-c', '--config', help='Configuration file')
+        config_arg = 'config'
+
     config = parser.parse_args(args)
 
-    if config.config:
-        config_argv = _load_config(config.config)
+    config_path = getattr(config, config_arg)
+    if config_path:
+        config_argv = _load_config(config_path)
         config = parser.parse_args(list(config_argv) + args)
     return config

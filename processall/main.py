@@ -40,13 +40,10 @@ def must_be_included(path, exclude, include):
 
 def write_file_list(fp, config):
     excluded_dirs = {os.path.join(config.source_dir, '.git')}
+    for submodule in list_submodules(config.source_dir):
+        excluded_dirs.add(os.path.join(config.source_dir, submodule))
 
     for dirpath, dirnames, filenames in os.walk(config.source_dir):
-        # Since source_dir is always absolute, dirpath is absolute as well, so
-        # we can create an absolute path based on it
-        for submodule in list_submodules(dirpath):
-            excluded_dirs.add(os.path.join(dirpath, submodule))
-
         # Remove excluded_dirs from dirnames. We must modify the actual
         # dirnames instance, we can't replace it, hence the old-school
         # iteration

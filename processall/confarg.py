@@ -9,10 +9,11 @@ to `parse_args`.
 points to a file which contain arguments, one per line, without the "--"
 prefix.
 """
+import os
 import sys
 
 
-def _parse_line(line):
+def _parse_line(config_dir, line):
     line = line.strip()
     if not line or line[0] == '#':
         return
@@ -25,14 +26,20 @@ def _parse_line(line):
 
     opt = line[:idx]
     value = line[idx:].strip()
-    yield '--' + opt
-    yield value
+
+    if opt == 'config':
+        config_path = os.path.join(config_dir, value)
+        yield from _load_config(config_path)
+    else:
+        yield '--' + opt
+        yield value
 
 
-def _load_config(config_name):
-    with open(config_name) as fp:
+def _load_config(config_path):
+    config_dir = os.path.dirname(config_path)
+    with open(config_path) as fp:
         for line in fp.readlines():
-            yield from _parse_line(line)
+            yield from _parse_line(config_dir, line)
 
 
 def parse_args(parser, args=None):

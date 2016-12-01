@@ -9,6 +9,7 @@ def test_parse_args(tmpdir):
 # Some comment
 include *.cpp
 include *.hpp
+flag
 
 exclude vendor/dir/*
 """)
@@ -16,10 +17,12 @@ exclude vendor/dir/*
     parser = ArgumentParser()
     parser.add_argument('--include', action='append')
     parser.add_argument('--exclude', action='append')
+    parser.add_argument('--flag', action='store_true')
 
     args = ['--config', str(config_file), '--include', '*.h']
 
     config = parse_args(parser, args)
 
     assert config.include == ['*.cpp', '*.hpp', '*.h']
+    assert config.flag is True
     assert config.exclude == ['vendor/dir/*']

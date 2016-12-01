@@ -12,15 +12,27 @@ prefix.
 import sys
 
 
+def _parse_line(line):
+    line = line.strip()
+    if not line or line[0] == '#':
+        return
+
+    idx = line.find(' ')
+    if idx == -1:
+        # Flag-like option
+        yield '--' + line
+        return
+
+    opt = line[:idx]
+    value = line[idx:].strip()
+    yield '--' + opt
+    yield value
+
+
 def _load_config(config_name):
     with open(config_name) as fp:
         for line in fp.readlines():
-            line = line.strip()
-            if line and line[0] != '#':
-                opt, value = line.split(' ', 1)
-                yield '--' + opt
-                if value:
-                    yield value.strip()
+            yield from _parse_line(line)
 
 
 def parse_args(parser, args=None):

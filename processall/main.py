@@ -40,8 +40,9 @@ def must_be_included(path, exclude, include):
 
 def write_file_list(fp, config):
     excluded_dirs = {os.path.join(config.source_dir, '.git')}
-    for submodule in list_submodules(config.source_dir):
-        excluded_dirs.add(os.path.join(config.source_dir, submodule))
+    if config.exclude_submodules:
+        for submodule in list_submodules(config.source_dir):
+            excluded_dirs.add(os.path.join(config.source_dir, submodule))
 
     for dirpath, dirnames, filenames in os.walk(config.source_dir):
         # Remove excluded_dirs from dirnames. We must modify the actual
@@ -91,6 +92,8 @@ def main():
                         help='Patterns of files to include')
     parser.add_argument('-x', '--exclude', action='append',
                         help='Patterns of files to exclude')
+    parser.add_argument('--exclude-submodules', action='store_true',
+                        help='Do not go inside submodules')
 
     parser.add_argument('-s', '--source-dir', help='Base source directory')
 

@@ -25,17 +25,24 @@ class AtTemplate(Template):
     delimiter = '@'
 
 
-def path_match_patterns(path, patterns):
+def match_patterns(text, patterns):
     for pattern in patterns:
-        if fnmatch(path, pattern):
+        if fnmatch(text, pattern):
             return True
     return False
 
 
-def must_be_included(path, exclude, include):
-    if path_match_patterns(path, exclude):
-        return False
-    return path_match_patterns(path, include)
+def split_patterns(patterns):
+    """Return a two-item tuple. First item contains patterns matching entire
+    paths, Second item contains patterns matching only filenames."""
+    path_lst = []
+    name_lst = []
+    for pattern in patterns:
+        if '/' in pattern:
+            path_lst.append(pattern)
+        else:
+            name_lst.append(pattern)
+    return path_lst, name_lst
 
 
 def write_file_list(fp, config):
@@ -43,6 +50,9 @@ def write_file_list(fp, config):
     if config.exclude_submodules:
         for submodule in list_submodules(config.source_dir):
             excluded_dirs.add(os.path.join(config.source_dir, submodule))
+
+    path_include, name_include = split_patterns(config.include)
+    path_exclude, name_exclude = split_patterns(config.exclude)
 
     for dirpath, dirnames, filenames in os.walk(config.source_dir):
         # Remove excluded_dirs from dirnames. We must modify the actual
@@ -55,8 +65,17 @@ def write_file_list(fp, config):
         relative_root = os.path.relpath(dirpath, config.source_dir)
         for filename in filenames:
             path = os.path.join(relative_root, filename)
-            if must_be_included(path, config.exclude, config.include):
-                print(path, file=fp)
+            if match_patterns(path, path_exclude):
+                continue
+            if match_patterns(filename, name_exclude):
+                continue
+            if path_include:
+                if not match_patterns(path, path_include):
+                    continue
+            if name_include:
+                if not match_patterns(filename, name_include):
+                    continue
+            print(path, file=fp)
 
 
 def list_files(config):
@@ -88,9 +107,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description = DESCRIPTION)
 
-    parser.add_argument('-i', '--include', action='append',
+    parser.add_argument('-i', '--include', action='append', default=[],
                         help='Patterns of files to include')
-    parser.add_argument('-x', '--exclude', action='append',
+    parser.add_argument('-x', '--exclude', action='append', default=[],
                         help='Patterns of files to exclude')
     parser.add_argument('--exclude-submodules', action='store_true',
                         help='Do not go inside submodules')

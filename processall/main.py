@@ -45,7 +45,7 @@ def split_patterns(patterns):
     return path_lst, name_lst
 
 
-def write_file_list(fp, config):
+def do_list_files(config):
     excluded_dirs = {os.path.join(config.source_dir, '.git')}
     if config.exclude_submodules:
         for submodule in list_submodules(config.source_dir):
@@ -75,11 +75,12 @@ def write_file_list(fp, config):
             if name_include:
                 if not match_patterns(filename, name_include):
                     continue
-            print(path, file=fp)
+            yield path
 
 
 def list_files(config):
-    write_file_list(sys.stdout, config)
+    for path in do_list_files(config):
+        print(path)
     return 0
 
 
@@ -87,7 +88,8 @@ def run_commands(config):
     with TemporaryDirectory(prefix='processall-') as tmp_dir_name:
         file_list = os.path.join(tmp_dir_name, 'lst')
         with open(file_list, 'wt') as fp:
-            write_file_list(fp, config)
+            for path in do_list_files(config):
+                print(path, file=fp)
 
         for command in config.exec_:
             tmpl = AtTemplate(command)

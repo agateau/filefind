@@ -102,9 +102,7 @@ def run_commands(config):
     return 0
 
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-
+def load_config(args):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description = DESCRIPTION)
@@ -121,8 +119,15 @@ def main():
     parser.add_argument('--exec', action='append', dest='exec_',
                         help='Command to execute on the matching files. @filelist in the command is replaced with the path to a file containing the list of matching files.')
 
-    config = parse_args(parser)
+    config = parse_args(parser, args=args)
     post_process_config(config)
+    return config
+
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+
+    config = load_config(sys.argv[1:])
 
     if config.exec_:
         return run_commands(config)

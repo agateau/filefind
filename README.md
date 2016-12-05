@@ -1,21 +1,27 @@
-# processall
+# STF
 
-## Goal
-
-Apply various processors to files inside a project.
+STF is a simple, portable, source-code friendly tool to find files inside a
+directory.
 
 ## Usage
 
-To list files to process:
+### Listing files
 
-    processall --include '*.cpp' --include '*.h' --exclude 'test/*'
+To specify which files to list, use the `--include` and `--exclude` options:
 
-To actually process files:
+    stf --include '*.cpp' --include '*.h' --exclude 'test/*'
 
-    processall --include '*.cpp' --include '*.h' --exclude 'test/*' --exec 'command @filelist'
+### Running a command on matching files
+
+You can use the `--exec` option to run a command on a temporary file containing
+all the matched files. For example:
+
+    stf --include '*.cpp' --include '*.h' --exclude 'test/*' --exec 'command @filelist'
+
+### Configuration files
 
 Options can be stored in a configuration file, so you could store all filters
-in a file named `processall.cfg` with the following content:
+in a file named `stf.cfg` with the following content:
 
 ```
 include *.cpp
@@ -27,13 +33,33 @@ exclude test/*
 
 And then list files with:
 
-    processall --config processall.cfg
+    stf --config stf.cfg
 
-And process files with:
+A configuration file can refer to another configuration file with the `config`
+keyword, so for example you can create `filelist.cfg` with this content:
 
-    process --config processall.cfg --exec 'command @filelist'
+```
+include *.cpp
+include *.h
 
-You can even define the `exec` option in the configuration file if you want.
+# Exclude tests
+exclude test/*
+```
+
+And `codestyle.cfg` which refers to it and reformats your code:
+
+```
+config filelist.cfg
+
+exec uncrustify --replace --no-backup -F @filelist
+```
+
+Now you can reformat your code with `stf -c codestyle.cfg`.
+
+### submodules
+
+If you want to exclude files inside Git submodules, use the
+`--exclude-submodules` option.
 
 ## Installation
 
@@ -41,7 +67,7 @@ You can even define the `exec` option in the configuration file if you want.
 
 ## Testing
 
-If you want to run tests, first install the development requirements with
+If you want to run tests, first install the development requirements with:
 
     pip install -r requirements-dev.txt
 

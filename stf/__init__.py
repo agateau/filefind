@@ -1,4 +1,4 @@
-"""processall - Apply various processor to files inside a project"""
+"""stf - Apply various processor to files inside a project"""
 
 __version__ = '0.1.0'
 __author__ = 'Aurélien Gâteau <mail@agateau.com>'

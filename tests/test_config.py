@@ -1,6 +1,6 @@
 import os
 
-from processall.config import post_process_config
+from stf.config import post_process_config
 
 
 def test_post_process_config():

@@ -9,9 +9,9 @@ from fnmatch import fnmatch
 from string import Template
 from tempfile import TemporaryDirectory
 
-from processall.confarg import parse_args
-from processall.config import post_process_config
-from processall.submodules import list_submodules
+from stf.confarg import parse_args
+from stf.config import post_process_config
+from stf.submodules import list_submodules
 
 
 DESCRIPTION = """\
@@ -85,7 +85,7 @@ def list_files(config):
 
 
 def run_commands(config):
-    with TemporaryDirectory(prefix='processall-') as tmp_dir_name:
+    with TemporaryDirectory(prefix='stf-') as tmp_dir_name:
         file_list = os.path.join(tmp_dir_name, 'lst')
         with open(file_list, 'wt') as fp:
             for path in do_list_files(config):

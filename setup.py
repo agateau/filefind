@@ -2,13 +2,13 @@
 import setuptools
 
 setuptools.setup(
-    name='processall',
+    name='stf',
     version='0.1.0',
 
     author='Aurélien Gâteau',
     author_email='mail@agateau.com',
 
-    description='Apply various processor to files inside a project',
+    description='A simple, portable, source-coe friendly tool to find files',
     long_description=open('README.md').read(),
 
     packages=setuptools.find_packages(),
@@ -17,7 +17,7 @@ setuptools.setup(
 
     entry_points={
         'console_scripts': [
-            'processall = processall.main:main'
+            'stf = stf.main:main'
         ]
     },
 

@@ -8,7 +8,7 @@ def test_post_process_config():
         pass
     config = Config()
     config.include = ['*.cpp *.h', '*.hpp']
-    config.exclude = None
+    config.exclude = []
     config.source_dir = None
     config.config = None
     config.exec_ = None

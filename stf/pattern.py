@@ -34,22 +34,17 @@ class Pattern:
         self._pattern_items = [PatternItem.parse(x) for x in text.split('/')]
 
     def match(self, path_components):
-        pattern_items = self._pattern_items[:]
         if len(self._pattern_items) == 1:
-            # name only pattern, find start
-            first = pattern_items.pop(0)
+            # name only pattern, can match anywhere
+            pattern = self._pattern_items[0]
             for idx, component in enumerate(path_components):
-                if first.match(component):
-                    break
+                if pattern.match(component):
+                    return True
             else:
                 return False
-        else:
-            # multi path pattern, must match at start
-            idx = -1
 
-        # Check rest of the pattern matches
-        for pattern in pattern_items:
-            idx += 1
+        # multi component pattern, must match at start
+        for idx, pattern in enumerate(self._pattern_items):
             if idx == len(path_components):
                 # We reached the end of the path, but we are not done with all
                 # the patterns

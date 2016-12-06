@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 
 from stf.confarg import parse_args
 from stf.config import post_process_config
+from stf.pattern import Pattern
 from stf.submodules import list_submodules
 
 
@@ -25,9 +26,9 @@ class AtTemplate(Template):
     delimiter = '@'
 
 
-def match_patterns(text, patterns):
+def match_patterns(patterns, path_components, is_dir=False):
     for pattern in patterns:
-        if fnmatch(text, pattern):
+        if pattern.match(path_components, is_dir=is_dir):
             return True
     return False
 
@@ -37,11 +38,11 @@ def split_patterns(patterns):
     paths, Second item contains patterns matching only filenames."""
     path_lst = []
     name_lst = []
-    for pattern in patterns:
-        if '/' in pattern:
-            path_lst.append(pattern)
+    for pattern_text in patterns:
+        if '/' in pattern_text:
+            path_lst.append(Pattern(pattern_text))
         else:
-            name_lst.append(pattern)
+            name_lst.append(Pattern(pattern_text))
     return path_lst, name_lst
 
 
@@ -65,15 +66,16 @@ def do_list_files(config):
         relative_root = os.path.relpath(dirpath, config.source_dir)
         for filename in filenames:
             path = os.path.join(relative_root, filename)
-            if match_patterns(path, path_exclude):
+            path_components = path.split('/')
+            if match_patterns(path_exclude, path_components):
                 continue
-            if match_patterns(filename, name_exclude):
+            if match_patterns(name_exclude, [filename]):
                 continue
             if path_include:
-                if not match_patterns(path, path_include):
+                if not match_patterns(path_includen, path_components):
                     continue
             if name_include:
-                if not match_patterns(filename, name_include):
+                if not match_patterns(name_include, [filename]):
                     continue
             yield path
 

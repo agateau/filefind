@@ -26,24 +26,11 @@ class AtTemplate(Template):
     delimiter = '@'
 
 
-def match_patterns(patterns, path_components, is_dir=False):
+def match_patterns(patterns, path_components):
     for pattern in patterns:
-        if pattern.match(path_components, is_dir=is_dir):
+        if pattern.match(path_components):
             return True
     return False
-
-
-def split_patterns(patterns):
-    """Return a two-item tuple. First item contains patterns matching entire
-    paths, Second item contains patterns matching only filenames."""
-    path_lst = []
-    name_lst = []
-    for pattern_text in patterns:
-        if '/' in pattern_text:
-            path_lst.append(Pattern(pattern_text))
-        else:
-            name_lst.append(Pattern(pattern_text))
-    return path_lst, name_lst
 
 
 def do_list_files(config):
@@ -52,8 +39,8 @@ def do_list_files(config):
         for submodule in list_submodules(config.source_dir):
             excluded_dirs.add(os.path.join(config.source_dir, submodule))
 
-    path_include, name_include = split_patterns(config.include)
-    path_exclude, name_exclude = split_patterns(config.exclude)
+    include_patterns = [Pattern(x) for x in config.include]
+    exclude_patterns = [Pattern(x) for x in config.exclude]
 
     for dirpath, dirnames, filenames in os.walk(config.source_dir):
         # Remove excluded_dirs from dirnames. We must modify the actual
@@ -63,21 +50,16 @@ def do_list_files(config):
             if os.path.join(dirpath, dirnames[idx]) in excluded_dirs:
                 del dirnames[idx]
 
-        relative_root = os.path.relpath(dirpath, config.source_dir)
+        relative_dirpath = os.path.relpath(dirpath, config.source_dir)
+        dirpath_components = relative_dirpath.split('/')
         for filename in filenames:
-            path = os.path.join(relative_root, filename)
-            path_components = path.split('/')
-            if match_patterns(path_exclude, path_components):
+            path_components = dirpath_components + [filename]
+            if match_patterns(exclude_patterns, path_components):
                 continue
-            if match_patterns(name_exclude, [filename]):
-                continue
-            if path_include:
-                if not match_patterns(path_includen, path_components):
+            if include_patterns:
+                if not match_patterns(include_patterns, path_components):
                     continue
-            if name_include:
-                if not match_patterns(name_include, [filename]):
-                    continue
-            yield path
+            yield os.path.join(*path_components)
 
 
 def list_files(config):

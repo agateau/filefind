@@ -4,17 +4,20 @@ from stf.pattern import Pattern
 
 
 @pytest.mark.parametrize('pattern_text,path,does_match', [
+    # Match name only
     ('*.cpp', 'foo.cpp', True),
     ('*.cpp', 'dir/foo.cpp', True),
     ('*.cpp', 'dir/foo.h', False),
+    ('dir', 'dir/foo.cpp', True),
+    ('dir', 'sub/dir/foo.cpp', True),
 
+    # Match dirs at start
     ('dir/*.cpp', 'dir/foo.cpp', True),
     ('dir/*.cpp', 'sub/dir/foo.cpp', False),
 
-    ('dir', 'dir/foo.cpp', True),
-    ('dir', 'sub/dir/foo.cpp', True),
-    ('dir/foo', 'sub/dir/foo.cpp', False),
-    ('dir/foo', 'sub/dir/foo/bar.cpp', False),
+    ('sub/dir', 'sub/dir/foo.cpp', True),
+    ('sub/dir/foo', 'sub/dir/foo.cpp', False),
+    ('sub/dir', 'root/sub/dir/foo.cpp', False),
 
     ('sub/*/foo.cpp', 'sub/dir/foo.cpp', True),
     ('sub/*/foo.cpp', 'sub/dir1/dir2/foo.cpp', False),

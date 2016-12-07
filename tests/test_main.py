@@ -30,7 +30,6 @@ def test_list_files(args, expected, tmpdir):
                  'build/',
                  'build/moc_foo.cpp')
 
-    config = load_config(args)
-    config.source_dir = str(tmpdir)
+    config = load_config(args + ['--directory', str(tmpdir)])
 
     assert(set(do_list_files(config)) == expected)

@@ -34,16 +34,16 @@ def match_patterns(patterns, path_components):
 
 
 def do_list_files(config):
-    excluded_dirs = {os.path.join(config.source_dir, '.git')}
+    excluded_dirs = {os.path.join(config.directory, '.git')}
     if config.exclude_submodules:
-        for submodule in list_submodules(config.source_dir):
-            excluded_dirs.add(os.path.join(config.source_dir, submodule))
+        for submodule in list_submodules(config.directory):
+            excluded_dirs.add(os.path.join(config.directory, submodule))
 
     include_patterns = [Pattern(x) for x in config.include]
     exclude_patterns = [Pattern(x) for x in config.exclude]
 
-    for dirpath, dirnames, filenames in os.walk(config.source_dir):
-        relative_dirpath = os.path.relpath(dirpath, config.source_dir)
+    for dirpath, dirnames, filenames in os.walk(config.directory):
+        relative_dirpath = os.path.relpath(dirpath, config.directory)
         dirpath_components = relative_dirpath.split('/')
 
         # Remove excluded_dirs from dirnames. We must modify the actual
@@ -82,7 +82,7 @@ def run_commands(config):
             tmpl = AtTemplate(command)
             cmd = tmpl.safe_substitute(filelist=file_list)
             logging.info('Running `{}`'.format(cmd))
-            returncode = subprocess.call(cmd, cwd=config.source_dir, shell=True)
+            returncode = subprocess.call(cmd, cwd=config.directory, shell=True)
             if returncode != 0:
                 logging.error('Command `{}` failed with error code {}'.format(cmd, returncode))
                 return 1
@@ -101,7 +101,7 @@ def load_config(args):
     parser.add_argument('--exclude-submodules', action='store_true',
                         help='Do not go inside submodules')
 
-    parser.add_argument('-s', '--source-dir', help='Base source directory')
+    parser.add_argument('-C', '--directory', help='Base directory')
 
     parser.add_argument('--exec', action='append', dest='exec_',
                         help='Command to execute on the matching files. @filelist in the command is replaced with the path to a file containing the list of matching files.')

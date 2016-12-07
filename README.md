@@ -11,6 +11,14 @@ To specify which files to list, use the `--include` and `--exclude` options:
 
     stf --include '*.cpp' --include '*.h' --exclude 'test/*'
 
+As a special case you can also specify include values with the `--include`, so
+
+    stf '*.cpp' '*.h'
+
+is the same as:
+
+    stf --include '*.cpp' --include '*.h'
+
 ### Running a command on matching files
 
 You can use the `--exec` option to run a command on a temporary file containing

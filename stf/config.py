@@ -15,5 +15,6 @@ def post_process_config(config):
             config.directory = '.'
     config.directory = os.path.abspath(os.path.expanduser(config.directory))
 
-    config.include = _flatten_patterns(config.include)
+    config.include = _flatten_patterns(config.include +
+                                       config.include_patterns)
     config.exclude = _flatten_patterns(config.exclude)

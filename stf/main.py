@@ -43,15 +43,18 @@ def do_list_files(config):
     exclude_patterns = [Pattern(x) for x in config.exclude]
 
     for dirpath, dirnames, filenames in os.walk(config.source_dir):
+        relative_dirpath = os.path.relpath(dirpath, config.source_dir)
+        dirpath_components = relative_dirpath.split('/')
+
         # Remove excluded_dirs from dirnames. We must modify the actual
         # dirnames instance, we can't replace it, hence the old-school
         # iteration
         for idx in range(len(dirnames) - 1, -1, -1):
             if os.path.join(dirpath, dirnames[idx]) in excluded_dirs:
                 del dirnames[idx]
+            elif match_patterns(exclude_patterns, dirpath_components + [dirnames[idx]]):
+                del dirnames[idx]
 
-        relative_dirpath = os.path.relpath(dirpath, config.source_dir)
-        dirpath_components = relative_dirpath.split('/')
         for filename in filenames:
             path_components = dirpath_components + [filename]
             if match_patterns(exclude_patterns, path_components):

@@ -82,3 +82,7 @@ If you want to run tests, first install the development requirements with:
 Then run tests with:
 
     pytest
+
+## License
+
+Apache 2.0

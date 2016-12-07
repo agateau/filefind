@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import setuptools
 
+
 setuptools.setup(
     name='filefind',
     version='0.1.0',
@@ -8,7 +9,7 @@ setuptools.setup(
     author='Aurélien Gâteau',
     author_email='mail@agateau.com',
 
-    description='A simple, portable, source-coe friendly tool to find files',
+    description='An easy-to-use, source-code friendly file finder',
     long_description=open('README.md').read(),
 
     packages=setuptools.find_packages(),

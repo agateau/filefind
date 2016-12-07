@@ -1,7 +1,6 @@
 # Filefind
 
-Filefind is a simple, portable, source-code friendly tool to find files inside
-a directory.
+Filefind is an easy-to-use, source-code friendly file finder.
 
 ## Usage
 

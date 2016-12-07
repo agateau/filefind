@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-from stf.confarg import parse_args
+from filefind.confarg import parse_args
 
 
 def test_parse_args(tmpdir):

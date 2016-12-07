@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from stf.config import load_config
-from stf.main import do_list_files
+from filefind.config import load_config
+from filefind.main import do_list_files
 
 
 def create_files(tmpdir, *paths):

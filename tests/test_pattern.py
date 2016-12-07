@@ -1,6 +1,6 @@
 import pytest
 
-from stf.pattern import Pattern
+from filefind.pattern import Pattern
 
 
 @pytest.mark.parametrize('pattern_text,path,does_match', [

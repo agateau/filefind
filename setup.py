@@ -2,7 +2,7 @@
 import setuptools
 
 setuptools.setup(
-    name='stf',
+    name='filefind',
     version='0.1.0',
 
     author='Aurélien Gâteau',
@@ -17,7 +17,7 @@ setuptools.setup(
 
     entry_points={
         'console_scripts': [
-            'stf = stf.main:main'
+            'ff = filefind.main:main'
         ]
     },
 

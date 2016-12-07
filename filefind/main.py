@@ -8,9 +8,9 @@ from fnmatch import fnmatch
 from string import Template
 from tempfile import TemporaryDirectory
 
-from stf.config import load_config
-from stf.pattern import Pattern
-from stf.submodules import list_submodules
+from filefind.config import load_config
+from filefind.pattern import Pattern
+from filefind.submodules import list_submodules
 
 
 class AtTemplate(Template):
@@ -65,7 +65,7 @@ def list_files(config):
 
 
 def run_commands(config):
-    with TemporaryDirectory(prefix='stf-') as tmp_dir_name:
+    with TemporaryDirectory(prefix='filefind-') as tmp_dir_name:
         file_list = os.path.join(tmp_dir_name, 'lst')
         with open(file_list, 'wt') as fp:
             for path in do_list_files(config):

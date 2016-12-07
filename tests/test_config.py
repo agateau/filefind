@@ -1,6 +1,6 @@
 import os
 
-from stf.config import load_config
+from filefind.config import load_config
 
 
 def test_post_process_config():

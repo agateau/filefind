@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from stf.confarg import parse_args
+from filefind.confarg import parse_args
 
 
 DESCRIPTION = """\

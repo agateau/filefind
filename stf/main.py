@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import argparse
 import os
 import logging
 import subprocess
@@ -9,15 +8,9 @@ from fnmatch import fnmatch
 from string import Template
 from tempfile import TemporaryDirectory
 
-from stf.confarg import parse_args
-from stf.config import post_process_config
+from stf.config import load_config
 from stf.pattern import Pattern
 from stf.submodules import list_submodules
-
-
-DESCRIPTION = """\
-A file lister geared towards listing source code.
-"""
 
 
 class AtTemplate(Template):
@@ -87,32 +80,6 @@ def run_commands(config):
                 logging.error('Command `{}` failed with error code {}'.format(cmd, returncode))
                 return 1
     return 0
-
-
-def load_config(args):
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description = DESCRIPTION)
-
-    parser.add_argument('-i', '--include', action='append', default=[],
-                        metavar='PATTERN', help='Patterns of files to include')
-    parser.add_argument('-x', '--exclude', action='append', default=[],
-                        metavar='PATTERN', help='Patterns of files to exclude')
-    parser.add_argument('--exclude-submodules', action='store_true',
-                        help='Do not go inside submodules')
-
-    parser.add_argument('-C', '--directory', help='Base directory')
-
-    parser.add_argument('--exec', action='append', dest='exec_',
-                        help='Command to execute on the matching files. @filelist in the command is replaced with the path to a file containing the list of matching files.')
-
-    parser.add_argument('include_patterns', default=[],
-                        nargs='*', help='Patterns of files to include',
-                        metavar='PATTERN')
-
-    config = parse_args(parser, args=args)
-    post_process_config(config)
-    return config
 
 
 def main():

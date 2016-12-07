@@ -2,7 +2,8 @@ import os
 
 import pytest
 
-from stf.main import do_list_files, load_config
+from stf.config import load_config
+from stf.main import do_list_files
 
 
 def create_files(tmpdir, *paths):

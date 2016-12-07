@@ -1,6 +1,6 @@
 import os
 
-from stf.main import load_config
+from stf.config import load_config
 
 
 def test_post_process_config():

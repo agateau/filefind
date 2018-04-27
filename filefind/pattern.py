@@ -15,6 +15,7 @@ def find_pattern(pattern, path_components, start_idx=0):
 
 class Pattern:
     def __init__(self, text):
+        text = text.replace('%', '*')
         self._patterns = [x for x in text.split('/')]
 
     def match(self, path_components):

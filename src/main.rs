@@ -1,19 +1,25 @@
 use std::fs;
 use std::ffi::OsStr;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use globset::{Glob,GlobMatcher};
 
+mod submodules;
+
 /// Search for files whose names match pattern
 #[derive(StructOpt)]
-struct Cli {
+struct Config {
     /// The pattern to look for
     pattern: String,
+
+    /// Do not go inside submodules
+    #[structopt(long="exclude-submodules")]
+    exclude_submodules: bool,
 }
 
-fn print_path(path: &Path) {
-    let path_s = path.to_str().expect("Can't get path");
-    println!("{}", path_s);
+struct Context {
+    matcher: GlobMatcher,
+    excluded_dirs: Vec<PathBuf>,
 }
 
 fn does_match(matcher: &GlobMatcher, name: &OsStr) -> bool {
@@ -21,14 +27,19 @@ fn does_match(matcher: &GlobMatcher, name: &OsStr) -> bool {
     matcher.is_match(name_s)
 }
 
-fn visit_dir(matcher: &GlobMatcher, root: &Path) {
-    for entry in fs::read_dir(root).expect("Can't read dir") {
+fn visit_dir(context: &Context, root: &Path) {
+    let entries = fs::read_dir(root);
+    if entries.is_err() {
+        println!("ERROR: Can't read dir {}", root.display());
+        return;
+    }
+    for entry in entries.unwrap() {
         let entry = entry.expect("Can't get entry");
         let file_type = entry.file_type().expect("Can't get file type");
-        if file_type.is_dir() {
-            visit_dir(&matcher, &entry.path());
-        } else if does_match(&matcher, &entry.file_name()) {
-            print_path(&entry.path());
+        if file_type.is_dir() && !context.excluded_dirs.contains(&entry.path()) {
+            visit_dir(&context, &entry.path());
+        } else if does_match(&context.matcher, &entry.file_name()) {
+            println!("{}", &entry.path().display());
         }
     }
 }
@@ -39,10 +50,17 @@ fn create_matcher(pattern: &str) -> GlobMatcher {
 }
 
 fn main() {
-    let args = Cli::from_args();
+    let config = Config::from_args();
 
-    let matcher = create_matcher(&args.pattern);
+    let matcher = create_matcher(&config.pattern);
 
-    let root = Path::new(".");
-    visit_dir(&matcher, root);
+    let root = Path::new(".").canonicalize().unwrap();
+    let excluded_dirs: Vec<PathBuf>;
+    if config.exclude_submodules {
+        excluded_dirs = submodules::list_submodules(&root);
+    } else {
+        excluded_dirs = Vec::new();
+    }
+    let context = Context{ matcher: matcher, excluded_dirs: excluded_dirs };
+    visit_dir(&context, &root);
 }

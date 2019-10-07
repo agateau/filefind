@@ -32,20 +32,6 @@ fn parse_gitmodules(sm_path: &Path) -> Vec<PathBuf> {
         paths.push(path);
     }
     return paths;
-    /*
-    cfg = ConfigParser()
-    cfg.read(gitmodules_path)
-    for section in cfg.sections():
-        if not section.startswith('submodule "'):
-            continue
-        path = cfg.get(section, 'path')
-        path = os.path.join(gitmodules_dir, path)
-
-        if path.startswith(source_dir):
-            # Only yields paths inside source_dir
-            yield path
-            */
-
 }
 
 pub fn list_submodules(path: &Path) -> Vec<PathBuf> {

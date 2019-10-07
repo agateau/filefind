@@ -44,15 +44,23 @@ fn visit_dir(context: &Context, root: &Path) {
     }
 }
 
-fn create_matcher(pattern: &str) -> GlobMatcher {
+fn create_matcher(pattern: &str) -> Result<GlobMatcher, String> {
     let mypat = pattern.replace("%", "*");
-    Glob::new(&mypat).expect("Failed to create matcher").compile_matcher()
+    let glob = Glob::new(&mypat);
+    match glob {
+        Ok(x) => Ok(x.compile_matcher()),
+        Err(x) => Err(x.to_string()),
+    }
 }
 
-fn main() {
+fn run_app() -> i32 {
     let config = Config::from_args();
 
     let matcher = create_matcher(&config.pattern);
+    if let Err(message) = matcher {
+        println!("Can't parse pattern. {}", message);
+        return 1;
+    }
 
     let root = Path::new(".").canonicalize().unwrap();
     let excluded_dirs: Vec<PathBuf>;
@@ -61,6 +69,11 @@ fn main() {
     } else {
         excluded_dirs = Vec::new();
     }
-    let context = Context{ matcher: matcher, excluded_dirs: excluded_dirs };
+    let context = Context{ matcher: matcher.unwrap(), excluded_dirs: excluded_dirs };
     visit_dir(&context, &root);
+    return 0;
+}
+
+fn main() {
+    ::std::process::exit(run_app());
 }

@@ -9,8 +9,8 @@ mod submodules;
 /// Search for files whose names match pattern
 #[derive(StructOpt)]
 struct Config {
-    /// The pattern to look for
-    pattern: String,
+    /// The patterns to look for
+    patterns: Vec<String>,
 
     /// Do not go inside submodules
     #[structopt(long="exclude-submodules")]
@@ -18,13 +18,20 @@ struct Config {
 }
 
 struct Context {
-    matcher: GlobMatcher,
+    matchers: Vec<GlobMatcher>,
     excluded_dirs: Vec<PathBuf>,
 }
 
-fn does_match(matcher: &GlobMatcher, name: &OsStr) -> bool {
-    let name_s = name.to_str().expect("Can't convert to str");
-    matcher.is_match(name_s)
+impl Context {
+    fn is_match(&self, name: &OsStr) -> bool {
+        let name_s = name.to_str().expect("Can't convert to str");
+        for matcher in &self.matchers {
+            if matcher.is_match(name_s) {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 fn visit_dir(context: &Context, root: &Path) {
@@ -38,7 +45,7 @@ fn visit_dir(context: &Context, root: &Path) {
         let file_type = entry.file_type().expect("Can't get file type");
         if file_type.is_dir() && !context.excluded_dirs.contains(&entry.path()) {
             visit_dir(&context, &entry.path());
-        } else if does_match(&context.matcher, &entry.file_name()) {
+        } else if context.is_match(&entry.file_name()) {
             println!("{}", &entry.path().display());
         }
     }
@@ -53,11 +60,23 @@ fn create_matcher(pattern: &str) -> Result<GlobMatcher, String> {
     }
 }
 
+fn create_matchers(patterns: &Vec<String>) -> Result<Vec<GlobMatcher>, String> {
+    let mut matchers : Vec<GlobMatcher> = Vec::new();
+    for pattern in patterns {
+        let matcher = create_matcher(&pattern);
+        if let Err(message) = matcher {
+            return Err(message);
+        }
+        matchers.push(matcher.unwrap());
+    }
+    Ok(matchers)
+}
+
 fn run_app() -> i32 {
     let config = Config::from_args();
 
-    let matcher = create_matcher(&config.pattern);
-    if let Err(message) = matcher {
+    let matchers : Result<Vec<GlobMatcher>, String> = create_matchers(&config.patterns);
+    if let Err(message) = matchers {
         println!("Can't parse pattern. {}", message);
         return 1;
     }
@@ -69,7 +88,8 @@ fn run_app() -> i32 {
     } else {
         excluded_dirs = Vec::new();
     }
-    let context = Context{ matcher: matcher.unwrap(), excluded_dirs: excluded_dirs };
+
+    let context = Context{ matchers: matchers.unwrap(), excluded_dirs: excluded_dirs };
     visit_dir(&context, &root);
     return 0;
 }

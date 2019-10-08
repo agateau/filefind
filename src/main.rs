@@ -12,6 +12,10 @@ struct Config {
     /// The patterns to look for
     patterns: Vec<String>,
 
+    /// The start directory
+    #[structopt(short="C", long, default_value=".")]
+    directory: String,
+
     /// Do not go inside submodules
     #[structopt(long="exclude-submodules")]
     exclude_submodules: bool,
@@ -81,7 +85,7 @@ fn run_app() -> i32 {
         return 1;
     }
 
-    let root = Path::new(".").canonicalize().unwrap();
+    let root = Path::new(&config.directory).canonicalize().unwrap();
     let excluded_dirs: Vec<PathBuf>;
     if config.exclude_submodules {
         excluded_dirs = submodules::list_submodules(&root);

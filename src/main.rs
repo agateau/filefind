@@ -6,7 +6,7 @@ use globset::{Glob,GlobMatcher};
 
 mod submodules;
 
-/// Search for files whose names match pattern
+/// Search for files whose names match patterns.
 #[derive(StructOpt)]
 struct Config {
     /// The patterns to look for
@@ -16,7 +16,7 @@ struct Config {
     #[structopt(short="C", long, default_value=".")]
     directory: String,
 
-    /// Do not go inside submodules
+    /// Do not go inside Git submodules
     #[structopt(long="exclude-submodules")]
     exclude_submodules: bool,
 }
